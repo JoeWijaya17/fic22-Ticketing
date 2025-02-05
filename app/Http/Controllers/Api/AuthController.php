@@ -18,6 +18,7 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string',
+            'confirm_password' => 'required|string|min:6|same:password',
         ]);
 
         //create user
@@ -49,7 +50,7 @@ class AuthController extends Controller
 
         //check if the payload is valid
         if ($payload) {
-            $user = User::where('email', $payload['email'])->first();
+            $user = \App\Models\User::with('vendor')->where('email', $payload['email'])->first();
             $token = $user->createToken('auth_token')->plainTextToken;
             if ($user) {
                 return response()->json([
@@ -94,7 +95,7 @@ class AuthController extends Controller
         ]);
 
         //check if the user exists
-        $user = User::where('email', $request->email)->first();
+        $user = \App\Models\User::with('vendor')->where('email', $request->email)->first();
 
         //check if the user exists
         if (!$user || !Hash::check($request->password, $user->password)) {
